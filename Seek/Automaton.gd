@@ -1,4 +1,4 @@
-# STEERING = DESIRED VELOCITY - CURRENT VELOCITY
+# STEERING FORCE = DESIRED VELOCITY - CURRENT VELOCITY
 # Desired velocity is a normalized vector pointing to the target from the vehicle
 # multiplied by the maximum speed
 
