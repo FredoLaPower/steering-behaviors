@@ -39,7 +39,7 @@ SAFETY_DISTANCE = 600
 TARGET = NodePath("../Player")
 
 [node name="Sprite" type="Sprite" parent="Automaton"]
-modulate = Color( 1, 0, 0, 1 )
+modulate = Color( 0, 0.494118, 0, 1 )
 texture = ExtResource( 7 )
 
 [node name="Collider" type="CollisionShape2D" parent="Automaton"]
@@ -58,14 +58,14 @@ AA = true
 script = ExtResource( 9 )
 PROPERTY_OWNER = NodePath("../..")
 PROPERTY = "current_velocity"
-COLOR = Color( 0, 0, 1, 1 )
+COLOR = Color( 1, 1, 0, 1 )
 AA = true
 
 [node name="SteeringForce" type="Node2D" parent="Automaton/Vectors"]
 script = ExtResource( 9 )
 PROPERTY_OWNER = NodePath("../..")
 PROPERTY = "steering_force"
-COLOR = Color( 0, 1, 0, 1 )
+COLOR = Color( 1, 0, 1, 1 )
 AA = true
 
 [node name="Player" type="KinematicBody2D" parent="."]
@@ -129,15 +129,18 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Labels" type="Label" parent="Control"]
+[node name="Labels" type="RichTextLabel" parent="Control"]
 margin_left = 10.0
 margin_top = 10.0
 margin_right = 130.0
 margin_bottom = 58.0
+bbcode_enabled = true
+bbcode_text = "[color=yellow]Current velocity:[/color]
+[color=red]Desired velocity:[color=blue]
+[color=purple]Steering force:[/color]"
 text = "Current velocity:
 Desired velocity:
 Steering force:"
-align = 2
 __meta__ = {
 "_edit_use_anchors_": false
 }
