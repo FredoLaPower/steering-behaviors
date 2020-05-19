@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://Seek/Player.gd" type="Script" id=1]
 [ext_resource path="res://icon.png" type="Texture" id=2]
@@ -7,6 +7,7 @@
 [ext_resource path="res://Seek/SpeedValue.gd" type="Script" id=5]
 [ext_resource path="res://Seek/AccValue.gd" type="Script" id=6]
 [ext_resource path="res://Seek/Automaton.gd" type="Script" id=7]
+[ext_resource path="res://Seek/DrawVector.gd" type="Script" id=8]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 64, 64 )
@@ -36,6 +37,21 @@ texture = ExtResource( 2 )
 
 [node name="Collider" type="CollisionShape2D" parent="Automaton"]
 shape = SubResource( 1 )
+
+[node name="DesiredVelocity" type="Node2D" parent="Automaton"]
+script = ExtResource( 8 )
+PROPERTY = "desired_velocity"
+COLOR = Color( 1, 0, 0, 1 )
+
+[node name="CurrentVelocity" type="Node2D" parent="Automaton"]
+script = ExtResource( 8 )
+PROPERTY = "current_velocity"
+COLOR = Color( 0, 0, 1, 1 )
+
+[node name="SteeringForce" type="Node2D" parent="Automaton"]
+script = ExtResource( 8 )
+PROPERTY = "steering_force"
+COLOR = Color( 0, 1, 0, 1 )
 
 [node name="Player" type="KinematicBody2D" parent="."]
 position = Vector2( 1210, 570 )
