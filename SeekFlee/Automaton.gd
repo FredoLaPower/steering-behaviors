@@ -26,7 +26,7 @@ func _ready() -> void:
 	owner.get_node("Control/MaxForce").value = MAX_FORCE
 	owner.get_node("Control/DecDistance").value = DECELERATION_DISTANCE
 	owner.get_node("Control/SafeDistance").value = SAFETY_DISTANCE
-	owner.get_node("Control/Behavior").pressed = SEEK
+	owner.get_node("Control/Seek").pressed = SEEK
 
 
 # warning-ignore:unused_argument
