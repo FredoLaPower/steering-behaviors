@@ -45,20 +45,25 @@ texture = ExtResource( 7 )
 [node name="Collider" type="CollisionShape2D" parent="Automaton"]
 shape = SubResource( 1 )
 
-[node name="DesiredVelocity" type="Node2D" parent="Automaton"]
+[node name="Vectors" type="Node2D" parent="Automaton"]
+
+[node name="DesiredVelocity" type="Node2D" parent="Automaton/Vectors"]
 script = ExtResource( 9 )
+PROPERTY_OWNER = NodePath("../..")
 PROPERTY = "desired_velocity"
 COLOR = Color( 1, 0, 0, 1 )
 AA = true
 
-[node name="CurrentVelocity" type="Node2D" parent="Automaton"]
+[node name="CurrentVelocity" type="Node2D" parent="Automaton/Vectors"]
 script = ExtResource( 9 )
+PROPERTY_OWNER = NodePath("../..")
 PROPERTY = "current_velocity"
 COLOR = Color( 0, 0, 1, 1 )
 AA = true
 
-[node name="SteeringForce" type="Node2D" parent="Automaton"]
+[node name="SteeringForce" type="Node2D" parent="Automaton/Vectors"]
 script = ExtResource( 9 )
+PROPERTY_OWNER = NodePath("../..")
 PROPERTY = "steering_force"
 COLOR = Color( 0, 1, 0, 1 )
 AA = true
@@ -300,7 +305,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Behavior" type="CheckBox" parent="Control"]
+[node name="Seek" type="CheckBox" parent="Control"]
 margin_left = 10.0
 margin_top = 380.0
 margin_right = 34.0
@@ -319,4 +324,4 @@ __meta__ = {
 [connection signal="value_changed" from="Control/DecDistance" to="Automaton" method="_on_DecDistance_value_changed"]
 [connection signal="value_changed" from="Control/SafeDistance" to="Control/SafeDistance/Value" method="_on_SafeDistance_value_changed"]
 [connection signal="value_changed" from="Control/SafeDistance" to="Automaton" method="_on_SafeDistance_value_changed"]
-[connection signal="toggled" from="Control/Behavior" to="Automaton" method="_on_Behavior_toggled"]
+[connection signal="toggled" from="Control/Seek" to="Automaton" method="_on_Behavior_toggled"]
