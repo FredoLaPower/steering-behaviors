@@ -5,7 +5,7 @@ extends Node2D
 # EXPORT
 export(String) var PROPERTY # Property holding the vector
 export(Color) var COLOR # Vector color
-
+export(bool) var AA # Antialiasing
 
 # warning-ignore:unused_argument
 func _physics_process(delta: float) -> void:
@@ -22,5 +22,5 @@ func _draw():
 		Vector2(0,10).rotated(rotation) + get_parent().get(PROPERTY)
 	]
 	
-	draw_line(Vector2.ZERO, get_parent().get(PROPERTY), COLOR, 3, true) # Draw the line
-	draw_colored_polygon(triangle, COLOR, PoolVector2Array(), null, null, true) # Draw the triangle
+	draw_line(Vector2.ZERO, get_parent().get(PROPERTY), COLOR, 3, AA) # Draw the line
+	draw_colored_polygon(triangle, COLOR, PoolVector2Array(), null, null, AA) # Draw the triangle

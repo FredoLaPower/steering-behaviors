@@ -15,8 +15,8 @@ _global_script_class_icons={
 
 [application]
 
-config/name="Steering Behavior - Seek"
-run/main_scene="res://Seek/Seek.tscn"
+config/name="Steering Behaviors"
+run/main_scene="res://SeekFlee/SeekFlee.tscn"
 config/icon="res://icon.png"
 
 [display]
@@ -67,4 +67,4 @@ player_down={
 
 [rendering]
 
-environment/default_environment="res://Seek/default_env.tres"
+environment/default_environment="res://SeekFlee/default_env.tres"

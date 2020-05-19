@@ -1,13 +1,15 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=15 format=2]
 
-[ext_resource path="res://Seek/Player.gd" type="Script" id=1]
-[ext_resource path="res://icon.png" type="Texture" id=2]
-[ext_resource path="res://Seek/Values.gd" type="Script" id=3]
-[ext_resource path="res://Seek/ForceValue.gd" type="Script" id=4]
-[ext_resource path="res://Seek/SpeedValue.gd" type="Script" id=5]
-[ext_resource path="res://Seek/AccValue.gd" type="Script" id=6]
-[ext_resource path="res://Seek/Automaton.gd" type="Script" id=7]
-[ext_resource path="res://Seek/DrawVector.gd" type="Script" id=8]
+[ext_resource path="res://SeekFlee/Automaton.gd" type="Script" id=1]
+[ext_resource path="res://SeekFlee/Controllers/DecValue.gd" type="Script" id=2]
+[ext_resource path="res://SeekFlee/Controllers/ForceValue.gd" type="Script" id=3]
+[ext_resource path="res://SeekFlee/Controllers/SpeedValue.gd" type="Script" id=4]
+[ext_resource path="res://SeekFlee/Controllers/AccValue.gd" type="Script" id=5]
+[ext_resource path="res://SeekFlee/Player.gd" type="Script" id=6]
+[ext_resource path="res://icon.png" type="Texture" id=7]
+[ext_resource path="res://SeekFlee/Controllers/Values.gd" type="Script" id=8]
+[ext_resource path="res://SeekFlee/Helper/DrawVector.gd" type="Script" id=9]
+[ext_resource path="res://SeekFlee/Controllers/SafeValue.gd" type="Script" id=10]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 64, 64 )
@@ -28,41 +30,49 @@ position = Vector2( 390, 70 )
 scale = Vector2( 0.5, 0.5 )
 collision_layer = 2
 collision_mask = 4
-script = ExtResource( 7 )
+script = ExtResource( 1 )
+ACCELERATION = 0.1
+MAX_SPEED = 300
+MAX_FORCE = 30
+DECELERATION_DISTANCE = 300
+SAFETY_DISTANCE = 600
 TARGET = NodePath("../Player")
 
 [node name="Sprite" type="Sprite" parent="Automaton"]
 modulate = Color( 1, 0, 0, 1 )
-texture = ExtResource( 2 )
+texture = ExtResource( 7 )
 
 [node name="Collider" type="CollisionShape2D" parent="Automaton"]
 shape = SubResource( 1 )
 
 [node name="DesiredVelocity" type="Node2D" parent="Automaton"]
-script = ExtResource( 8 )
+script = ExtResource( 9 )
 PROPERTY = "desired_velocity"
 COLOR = Color( 1, 0, 0, 1 )
+AA = true
 
 [node name="CurrentVelocity" type="Node2D" parent="Automaton"]
-script = ExtResource( 8 )
+script = ExtResource( 9 )
 PROPERTY = "current_velocity"
 COLOR = Color( 0, 0, 1, 1 )
+AA = true
 
 [node name="SteeringForce" type="Node2D" parent="Automaton"]
-script = ExtResource( 8 )
+script = ExtResource( 9 )
 PROPERTY = "steering_force"
 COLOR = Color( 0, 1, 0, 1 )
+AA = true
 
 [node name="Player" type="KinematicBody2D" parent="."]
 position = Vector2( 1210, 570 )
 scale = Vector2( 0.5, 0.5 )
 collision_mask = 4
-script = ExtResource( 1 )
+script = ExtResource( 6 )
 MAX_SPEED = 640.0
 ACCELERATION = 0.1
 
 [node name="Sprite" type="Sprite" parent="Player"]
-texture = ExtResource( 2 )
+texture = ExtResource( 7 )
 
 [node name="Collider" type="CollisionShape2D" parent="Player"]
 shape = SubResource( 2 )
@@ -132,7 +142,7 @@ margin_left = 140.0
 margin_top = 10.0
 margin_right = 310.0
 margin_bottom = 24.0
-script = ExtResource( 3 )
+script = ExtResource( 8 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -163,7 +173,10 @@ margin_right = 300.0
 margin_bottom = -6.0
 grow_horizontal = 0
 align = 2
-script = ExtResource( 6 )
+script = ExtResource( 5 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="MaxSpeed" type="HSlider" parent="Control"]
 margin_left = 10.0
@@ -189,7 +202,7 @@ margin_right = 300.0
 margin_bottom = -6.0
 grow_horizontal = 0
 align = 2
-script = ExtResource( 5 )
+script = ExtResource( 4 )
 
 [node name="MaxForce" type="HSlider" parent="Control"]
 margin_left = 10.0
@@ -218,7 +231,81 @@ margin_right = 300.0
 margin_bottom = -6.0
 grow_horizontal = 0
 align = 2
-script = ExtResource( 4 )
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DecDistance" type="HSlider" parent="Control"]
+margin_left = 10.0
+margin_top = 280.0
+margin_right = 310.0
+margin_bottom = 296.0
+max_value = 1000.0
+step = 10.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="Control/DecDistance"]
+margin_top = -20.0
+margin_right = 159.0
+margin_bottom = -6.0
+text = "Deceleration Distance"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Value" type="Label" parent="Control/DecDistance"]
+margin_left = 260.0
+margin_top = -20.0
+margin_right = 300.0
+margin_bottom = -6.0
+grow_horizontal = 0
+align = 2
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SafeDistance" type="HSlider" parent="Control"]
+margin_left = 10.0
+margin_top = 340.0
+margin_right = 310.0
+margin_bottom = 356.0
+max_value = 1000.0
+step = 10.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="Control/SafeDistance"]
+margin_top = -20.0
+margin_right = 159.0
+margin_bottom = -6.0
+text = "Safety Distance"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Value" type="Label" parent="Control/SafeDistance"]
+margin_left = 260.0
+margin_top = -20.0
+margin_right = 300.0
+margin_bottom = -6.0
+grow_horizontal = 0
+align = 2
+script = ExtResource( 10 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Behavior" type="CheckBox" parent="Control"]
+margin_left = 10.0
+margin_top = 380.0
+margin_right = 34.0
+margin_bottom = 404.0
+text = "Seek?"
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -228,3 +315,8 @@ __meta__ = {
 [connection signal="value_changed" from="Control/MaxSpeed" to="Automaton" method="_on_MaxSpeed_value_changed"]
 [connection signal="value_changed" from="Control/MaxForce" to="Control/MaxForce/Value" method="_on_MaxForce_value_changed"]
 [connection signal="value_changed" from="Control/MaxForce" to="Automaton" method="_on_MaxForce_value_changed"]
+[connection signal="value_changed" from="Control/DecDistance" to="Control/DecDistance/Value" method="_on_DecDistance_value_changed"]
+[connection signal="value_changed" from="Control/DecDistance" to="Automaton" method="_on_DecDistance_value_changed"]
+[connection signal="value_changed" from="Control/SafeDistance" to="Control/SafeDistance/Value" method="_on_SafeDistance_value_changed"]
+[connection signal="value_changed" from="Control/SafeDistance" to="Automaton" method="_on_SafeDistance_value_changed"]
+[connection signal="toggled" from="Control/Behavior" to="Automaton" method="_on_Behavior_toggled"]
