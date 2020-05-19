@@ -19,5 +19,5 @@ func _draw():
 		Vector2(0,10).rotated(rotation) + get_parent().get(PROPERTY)
 	]
 	
-	draw_line(Vector2.ZERO, get_parent().get(PROPERTY), COLOR, 3)
-	draw_colored_polygon(triangle, COLOR)
+	draw_line(Vector2.ZERO, get_parent().get(PROPERTY), COLOR, 3, true)
+	draw_colored_polygon(triangle, COLOR,  PoolVector2Array(), null, null, true)
