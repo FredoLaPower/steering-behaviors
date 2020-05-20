@@ -74,8 +74,6 @@ func _physics_process(delta: float) -> void:
 		1: # Flee
 			if distance < SAFETY_DISTANCE:
 				speed *= (distance - SAFETY_DISTANCE) / SAFETY_DISTANCE
-			else:
-				speed = 0
 	
 	desired_velocity = direction * speed
 
