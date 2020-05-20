@@ -2,7 +2,6 @@ extends Label
 
 
 export(NodePath) var Automaton
-export(NodePath) var Player
 
 
 # warning-ignore:unused_argument

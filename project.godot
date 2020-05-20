@@ -8,15 +8,20 @@
 
 config_version=4
 
-_global_script_classes=[  ]
+_global_script_classes=[ {
+"base": "KinematicBody2D",
+"class": "Behaviors",
+"language": "GDScript",
+"path": "res://Scene/Behaviors.gd"
+} ]
 _global_script_class_icons={
-
+"Behaviors": ""
 }
 
 [application]
 
 config/name="Steering Behaviors"
-run/main_scene="res://SeekFlee/SeekFlee.tscn"
+run/main_scene="res://Scene/Main.tscn"
 config/icon="res://icon.png"
 
 [display]
@@ -67,4 +72,4 @@ player_down={
 
 [rendering]
 
-environment/default_environment="res://SeekFlee/default_env.tres"
+environment/default_environment="res://Scene/default_env.tres"

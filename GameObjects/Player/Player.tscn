@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://GameObjects/Player/Player.gd" type="Script" id=1]
+[ext_resource path="res://icon.png" type="Texture" id=2]
+
+
+
+[sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 64, 64 )
+
+[node name="Player" type="KinematicBody2D"]
+position = Vector2( 1210, 570 )
+scale = Vector2( 0.5, 0.5 )
+collision_mask = 4
+script = ExtResource( 1 )
+MAX_SPEED = 640.0
+ACCELERATION = 0.1
+
+[node name="Sprite" type="Sprite" parent="."]
+texture = ExtResource( 2 )
+
+[node name="Collider" type="CollisionShape2D" parent="."]
+shape = SubResource( 2 )
