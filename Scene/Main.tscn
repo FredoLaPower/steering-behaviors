@@ -270,7 +270,10 @@ PROPERTY = "MAX_SPEED"
 margin_top = -20.0
 margin_right = 40.0
 margin_bottom = -6.0
-text = "Maxium Speed"
+text = "Maximum Speed"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="Value" type="Label" parent="ControlPanel/Common/MaxSpeed"]
 margin_left = 260.0
