@@ -68,7 +68,7 @@ func _physics_process(delta: float) -> void:
 		distance = position.distance_to($RayCast.get_collision_point())
 		avoidance_force = $RayCast.get_collision_normal() * (AVOIDANCE_FORCE - distance) # Closer we are stronger is the force
 	else:
-		avoidance_force = Vector2.ZERO
+		avoidance_force = lerp(avoidance_force, Vector2.ZERO, ACCELERATION) # Lerp to reduce the jitter
 		
 	# Calculate desired velocity
 	if BEHAVIOR == 2:
