@@ -92,7 +92,13 @@ DRAW_TRIANGLE = true
 [node name="Player" parent="." instance=ExtResource( 10 )]
 
 [node name="Obstacle" parent="." instance=ExtResource( 3 )]
-position = Vector2( 813.289, 256.401 )
+position = Vector2( 803.253, 180.505 )
+
+[node name="Obstacle2" parent="." instance=ExtResource( 3 )]
+position = Vector2( 1036.59, 390.63 )
+
+[node name="Obstacle3" parent="." instance=ExtResource( 3 )]
+position = Vector2( 582.465, 394.394 )
 
 [node name="Limits" type="Node2D" parent="."]
 
