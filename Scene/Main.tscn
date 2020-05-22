@@ -1,7 +1,8 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://Scene/Behaviors.gd" type="Script" id=1]
 [ext_resource path="res://Scene/Controllers/Range.gd" type="Script" id=2]
+[ext_resource path="res://GameObjects/Obstacle/Obstacle.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Helper/DrawVector.gd" type="Script" id=4]
 [ext_resource path="res://Scene/Vectors.gd" type="Script" id=7]
 [ext_resource path="res://Helper/DrawSteeringWheel.gd" type="Script" id=8]
@@ -13,34 +14,53 @@
 extents = Vector2( 16, 320 )
 
 [sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 16, 288 )
+
+[sub_resource type="RectangleShape2D" id=3]
 extents = Vector2( 512, 16 )
 
-[sub_resource type="StyleBoxFlat" id=3]
+[sub_resource type="RectangleShape2D" id=4]
+extents = Vector2( 480, 16 )
+
+[sub_resource type="StyleBoxFlat" id=5]
 bg_color = Color( 0.235294, 0.235294, 0.235294, 1 )
 
 [node name="Scene" type="Node2D"]
 
 [node name="Automaton" parent="." instance=ExtResource( 9 )]
+position = Vector2( 390, 70 )
 script = ExtResource( 1 )
 ACCELERATION = 0.1
 MAX_SPEED = 150
-MAX_FORCE = 50
-DECELERATION_DISTANCE = 200
+STEERING_FORCE = 150
+AVOIDANCE_FORCE = 200
+LOOKUP_DISTANCE = 300
+BREAKING_DISTANCE = 200
 SAFETY_DISTANCE = 400
 WHEEL_DISTANCE = 200
-WHEEL_RADIUS = 100
-STEERING_DISPLACEMENT = 30
+WHEEL_RADIUS = 60
+STEERING_DISPLACEMENT = 60
 SKIPPED_FRAMES = 10
 BEHAVIOR = 2
 TARGET = NodePath("../Player")
 
 [node name="Helpers" type="Node2D" parent="Automaton"]
 
+[node name="SteeringWheel" type="Node2D" parent="Automaton/Helpers"]
+script = ExtResource( 8 )
+OWNER = NodePath("../..")
+DIRECTION = "current_velocity"
+TARGET = "steering_point"
+WHEEL_COLOR = Color( 0, 0, 1, 1 )
+TARGET_COLOR = Color( 0, 1, 0, 1 )
+WIDTH = 2
+ACTIVE = true
+
 [node name="DesiredVelocity" type="Node2D" parent="Automaton/Helpers"]
 script = ExtResource( 4 )
 OWNER = NodePath("../..")
 VECTOR = "desired_velocity"
-COLOR = Color( 1, 0, 0, 1 )
+COLOR = Color( 1, 0, 1, 1 )
 WIDTH = 3
 DRAW_TRIANGLE = true
 
@@ -57,56 +77,94 @@ script = ExtResource( 4 )
 OWNER = NodePath("../..")
 VECTOR = "steering_force"
 ORIGIN = "current_velocity"
-COLOR = Color( 1, 0, 1, 1 )
+COLOR = Color( 1, 0, 0, 1 )
 WIDTH = 3
 DRAW_TRIANGLE = true
 
-[node name="SteeringWheel" type="Node2D" parent="Automaton/Helpers"]
-script = ExtResource( 8 )
+[node name="LookupVector" type="Node2D" parent="Automaton/Helpers"]
+script = ExtResource( 4 )
 OWNER = NodePath("../..")
-DIRECTION = "current_velocity"
-TARGET = "steering_point"
-WHEEL_COLOR = Color( 0, 0, 1, 1 )
-TARGET_COLOR = Color( 0, 1, 0, 1 )
-WIDTH = 2
-ACTIVE = true
+VECTOR = "lookup_vector"
+COLOR = Color( 0, 0.196078, 0.588235, 0.705882 )
+WIDTH = 3
+DRAW_TRIANGLE = true
 
 [node name="Player" parent="." instance=ExtResource( 10 )]
+
+[node name="Obstacle" parent="." instance=ExtResource( 3 )]
+position = Vector2( 813.289, 256.401 )
 
 [node name="Limits" type="Node2D" parent="."]
 
 [node name="LeftLimit" type="StaticBody2D" parent="Limits"]
 position = Vector2( 304, 320 )
-collision_layer = 4
-collision_mask = 3
+collision_layer = 8
+collision_mask = 7
 
 [node name="Collider" type="CollisionShape2D" parent="Limits/LeftLimit"]
 shape = SubResource( 1 )
 
+[node name="Proximity" type="Area2D" parent="Limits/LeftLimit"]
+collision_layer = 16
+collision_mask = 3
+
+[node name="Sensor" type="CollisionShape2D" parent="Limits/LeftLimit/Proximity"]
+modulate = Color( 0, 1, 0, 1 )
+position = Vector2( 32, 0 )
+shape = SubResource( 2 )
+
 [node name="RightLimit" type="StaticBody2D" parent="Limits"]
 position = Vector2( 1296, 320 )
-collision_layer = 4
-collision_mask = 3
+collision_layer = 8
+collision_mask = 7
 
 [node name="Collider" type="CollisionShape2D" parent="Limits/RightLimit"]
 shape = SubResource( 1 )
 
-[node name="UpperLimit" type="StaticBody2D" parent="Limits"]
-position = Vector2( 800, -16 )
-collision_layer = 4
+[node name="Proximity" type="Area2D" parent="Limits/RightLimit"]
+position = Vector2( -64.4326, 0.580078 )
+collision_layer = 16
 collision_mask = 3
 
-[node name="Collider" type="CollisionShape2D" parent="Limits/UpperLimit"]
+[node name="Sensor" type="CollisionShape2D" parent="Limits/RightLimit/Proximity"]
+modulate = Color( 0, 1, 0, 1 )
+position = Vector2( 32, 0 )
 shape = SubResource( 2 )
+
+[node name="UpperLimit" type="StaticBody2D" parent="Limits"]
+position = Vector2( 800, -16 )
+collision_layer = 8
+collision_mask = 7
+
+[node name="Collider" type="CollisionShape2D" parent="Limits/UpperLimit"]
+shape = SubResource( 3 )
+
+[node name="Proximity" type="Area2D" parent="Limits/UpperLimit"]
+position = Vector2( 0, 32 )
+collision_layer = 16
+collision_mask = 3
+
+[node name="Sensor" type="CollisionShape2D" parent="Limits/UpperLimit/Proximity"]
+modulate = Color( 0, 1, 0, 1 )
+shape = SubResource( 4 )
 
 [node name="LowerLimit" type="StaticBody2D" parent="Limits"]
 position = Vector2( 800, -16 )
-collision_layer = 4
-collision_mask = 3
+collision_layer = 8
+collision_mask = 7
 
 [node name="Collider" type="CollisionShape2D" parent="Limits/LowerLimit"]
 position = Vector2( 0, 672 )
-shape = SubResource( 2 )
+shape = SubResource( 3 )
+
+[node name="Proximity" type="Area2D" parent="Limits/LowerLimit"]
+position = Vector2( 6.10352e-05, 640 )
+collision_layer = 16
+collision_mask = 3
+
+[node name="Sensor" type="CollisionShape2D" parent="Limits/LowerLimit/Proximity"]
+modulate = Color( 0, 1, 0, 1 )
+shape = SubResource( 4 )
 
 [node name="ControlPanel" type="Control" parent="."]
 __meta__ = {
@@ -114,9 +172,9 @@ __meta__ = {
 }
 
 [node name="Panel" type="Panel" parent="ControlPanel"]
-margin_top = 110.0
+margin_top = 110.5
 margin_right = 320.0
-margin_bottom = 640.0
+margin_bottom = 640.5
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -131,7 +189,7 @@ __meta__ = {
 [node name="Panel" type="Panel" parent="ControlPanel/Automaton"]
 margin_right = 320.0
 margin_bottom = 110.0
-custom_styles/panel = SubResource( 3 )
+custom_styles/panel = SubResource( 5 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -204,8 +262,9 @@ __meta__ = {
 
 [node name="Title" type="Label" parent="ControlPanel/Common"]
 margin_left = 10.0
-margin_right = 74.0
-margin_bottom = 14.0
+margin_top = 0.5
+margin_right = 110.0
+margin_bottom = 14.5
 custom_colors/font_color = Color( 0.498039, 0.498039, 0.498039, 1 )
 text = "COMMON"
 __meta__ = {
@@ -224,7 +283,7 @@ __meta__ = {
 [node name="Acceleration" type="HSlider" parent="ControlPanel/Common"]
 margin_left = 10.0
 margin_top = 50.0
-margin_right = 310.0
+margin_right = 155.0
 margin_bottom = 66.0
 max_value = 1.0
 step = 0.1
@@ -237,14 +296,17 @@ PROPERTY = "ACCELERATION"
 
 [node name="Label" type="Label" parent="ControlPanel/Common/Acceleration"]
 margin_top = -20.0
-margin_right = 40.0
+margin_right = 100.0
 margin_bottom = -6.0
 text = "Acceleration"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="Value" type="Label" parent="ControlPanel/Common/Acceleration"]
-margin_left = 260.0
+margin_left = 105.0
 margin_top = -20.0
-margin_right = 300.0
+margin_right = 145.0
 margin_bottom = -6.0
 grow_horizontal = 0
 align = 2
@@ -253,10 +315,10 @@ __meta__ = {
 }
 
 [node name="MaxSpeed" type="HSlider" parent="ControlPanel/Common"]
-margin_left = 10.0
-margin_top = 95.0
+margin_left = 165.0
+margin_top = 50.0
 margin_right = 310.0
-margin_bottom = 111.0
+margin_bottom = 66.0
 max_value = 1000.0
 step = 10.0
 script = ExtResource( 2 )
@@ -268,26 +330,26 @@ PROPERTY = "MAX_SPEED"
 
 [node name="Label" type="Label" parent="ControlPanel/Common/MaxSpeed"]
 margin_top = -20.0
-margin_right = 40.0
+margin_right = 100.0
 margin_bottom = -6.0
-text = "Maximum Speed"
+text = "Speed"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Value" type="Label" parent="ControlPanel/Common/MaxSpeed"]
-margin_left = 260.0
+margin_left = 105.0
 margin_top = -20.0
-margin_right = 300.0
+margin_right = 145.0
 margin_bottom = -6.0
 grow_horizontal = 0
 align = 2
 
-[node name="MaxForce" type="HSlider" parent="ControlPanel/Common"]
+[node name="SteerForce" type="HSlider" parent="ControlPanel/Common"]
 margin_left = 10.0
-margin_top = 140.0
-margin_right = 310.0
-margin_bottom = 156.0
+margin_top = 95.0
+margin_right = 155.0
+margin_bottom = 111.0
 max_value = 1000.0
 step = 10.0
 script = ExtResource( 2 )
@@ -295,21 +357,21 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 AUTOMATON = NodePath("../../../Automaton")
-PROPERTY = "MAX_FORCE"
+PROPERTY = "STEERING_FORCE"
 
-[node name="Label" type="Label" parent="ControlPanel/Common/MaxForce"]
+[node name="Label" type="Label" parent="ControlPanel/Common/SteerForce"]
 margin_top = -20.0
-margin_right = 159.0
+margin_right = 100.0
 margin_bottom = -6.0
-text = "Maximum Steering Force"
+text = "Steer Force"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Value" type="Label" parent="ControlPanel/Common/MaxForce"]
-margin_left = 260.0
+[node name="Value" type="Label" parent="ControlPanel/Common/SteerForce"]
+margin_left = 105.0
 margin_top = -20.0
-margin_right = 300.0
+margin_right = 145.0
 margin_bottom = -6.0
 grow_horizontal = 0
 align = 2
@@ -317,25 +379,25 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Seek" type="Control" parent="ControlPanel"]
-margin_top = 300.0
+[node name="SeekFlee" type="Control" parent="ControlPanel"]
+margin_top = 260.0
 margin_right = 40.0
-margin_bottom = 340.0
+margin_bottom = 300.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Title" type="Label" parent="ControlPanel/Seek"]
+[node name="Title" type="Label" parent="ControlPanel/SeekFlee"]
 margin_left = 10.0
-margin_right = 74.0
+margin_right = 110.0
 margin_bottom = 14.0
 custom_colors/font_color = Color( 0.498039, 0.498039, 0.498039, 1 )
-text = "SEEK"
+text = "SEEK & FLEE"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="HSeparator" type="HSeparator" parent="ControlPanel/Seek"]
+[node name="HSeparator" type="HSeparator" parent="ControlPanel/SeekFlee"]
 margin_left = 10.0
 margin_top = 15.0
 margin_right = 310.0
@@ -344,10 +406,10 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="DecDistance" type="HSlider" parent="ControlPanel/Seek"]
+[node name="BreakDistance" type="HSlider" parent="ControlPanel/SeekFlee"]
 margin_left = 10.0
 margin_top = 50.0
-margin_right = 310.0
+margin_right = 155.0
 margin_bottom = 66.0
 max_value = 1000.0
 step = 10.0
@@ -356,21 +418,21 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 AUTOMATON = NodePath("../../../Automaton")
-PROPERTY = "DECELERATION_DISTANCE"
+PROPERTY = "BREAKING_DISTANCE"
 
-[node name="Label" type="Label" parent="ControlPanel/Seek/DecDistance"]
+[node name="Label" type="Label" parent="ControlPanel/SeekFlee/BreakDistance"]
 margin_top = -20.0
-margin_right = 159.0
+margin_right = 100.0
 margin_bottom = -6.0
-text = "Deceleration Distance"
+text = "Breaking"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Value" type="Label" parent="ControlPanel/Seek/DecDistance"]
-margin_left = 260.0
+[node name="Value" type="Label" parent="ControlPanel/SeekFlee/BreakDistance"]
+margin_left = 105.0
 margin_top = -20.0
-margin_right = 300.0
+margin_right = 145.0
 margin_bottom = -6.0
 grow_horizontal = 0
 align = 2
@@ -378,35 +440,8 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Flee" type="Control" parent="ControlPanel"]
-margin_top = 380.0
-margin_right = 40.0
-margin_bottom = 420.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Title" type="Label" parent="ControlPanel/Flee"]
-margin_left = 10.0
-margin_right = 74.0
-margin_bottom = 14.0
-custom_colors/font_color = Color( 0.498039, 0.498039, 0.498039, 1 )
-text = "FLEE"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="HSeparator" type="HSeparator" parent="ControlPanel/Flee"]
-margin_left = 10.0
-margin_top = 15.0
-margin_right = 310.0
-margin_bottom = 19.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="SafeDistance" type="HSlider" parent="ControlPanel/Flee"]
-margin_left = 10.0
+[node name="SafeDistance" type="HSlider" parent="ControlPanel/SeekFlee"]
+margin_left = 165.0
 margin_top = 50.0
 margin_right = 310.0
 margin_bottom = 66.0
@@ -419,19 +454,19 @@ __meta__ = {
 AUTOMATON = NodePath("../../../Automaton")
 PROPERTY = "SAFETY_DISTANCE"
 
-[node name="Label" type="Label" parent="ControlPanel/Flee/SafeDistance"]
+[node name="Label" type="Label" parent="ControlPanel/SeekFlee/SafeDistance"]
 margin_top = -20.0
-margin_right = 159.0
+margin_right = 100.0
 margin_bottom = -6.0
-text = "Safety Distance"
+text = "Safety"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Value" type="Label" parent="ControlPanel/Flee/SafeDistance"]
-margin_left = 260.0
+[node name="Value" type="Label" parent="ControlPanel/SeekFlee/SafeDistance"]
+margin_left = 105.0
 margin_top = -20.0
-margin_right = 300.0
+margin_right = 145.0
 margin_bottom = -6.0
 grow_horizontal = 0
 align = 2
@@ -440,16 +475,16 @@ __meta__ = {
 }
 
 [node name="Wander" type="Control" parent="ControlPanel"]
-margin_top = 460.0
+margin_top = 345.0
 margin_right = 40.0
-margin_bottom = 500.0
+margin_bottom = 385.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Title" type="Label" parent="ControlPanel/Wander"]
 margin_left = 10.0
-margin_right = 74.0
+margin_right = 110.0
 margin_bottom = 14.0
 custom_colors/font_color = Color( 0.498039, 0.498039, 0.498039, 1 )
 text = "WANDER"
@@ -469,7 +504,7 @@ __meta__ = {
 [node name="Distance" type="HSlider" parent="ControlPanel/Wander"]
 margin_left = 10.0
 margin_top = 50.0
-margin_right = 310.0
+margin_right = 155.0
 margin_bottom = 66.0
 max_value = 1000.0
 step = 10.0
@@ -482,17 +517,17 @@ PROPERTY = "WHEEL_DISTANCE"
 
 [node name="Label" type="Label" parent="ControlPanel/Wander/Distance"]
 margin_top = -20.0
-margin_right = 159.0
+margin_right = 100.0
 margin_bottom = -6.0
-text = "Wheel Distance"
+text = "Distance"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Value" type="Label" parent="ControlPanel/Wander/Distance"]
-margin_left = 260.0
+margin_left = 105.0
 margin_top = -20.0
-margin_right = 300.0
+margin_right = 145.0
 margin_bottom = -6.0
 grow_horizontal = 0
 align = 2
@@ -501,10 +536,10 @@ __meta__ = {
 }
 
 [node name="Radius" type="HSlider" parent="ControlPanel/Wander"]
-margin_left = 10.0
-margin_top = 95.0
+margin_left = 165.0
+margin_top = 50.0
 margin_right = 310.0
-margin_bottom = 111.0
+margin_bottom = 66.0
 max_value = 1000.0
 step = 10.0
 script = ExtResource( 2 )
@@ -515,18 +550,19 @@ AUTOMATON = NodePath("../../../Automaton")
 PROPERTY = "WHEEL_RADIUS"
 
 [node name="Label" type="Label" parent="ControlPanel/Wander/Radius"]
+margin_left = -1.25449
 margin_top = -20.0
-margin_right = 159.0
+margin_right = 98.7455
 margin_bottom = -6.0
-text = "Wheel Radius"
+text = "Radius"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Value" type="Label" parent="ControlPanel/Wander/Radius"]
-margin_left = 260.0
+margin_left = 105.0
 margin_top = -20.0
-margin_right = 300.0
+margin_right = 145.0
 margin_bottom = -6.0
 grow_horizontal = 0
 align = 2
@@ -536,9 +572,9 @@ __meta__ = {
 
 [node name="Displacement" type="HSlider" parent="ControlPanel/Wander"]
 margin_left = 10.0
-margin_top = 140.0
+margin_top = 95.0
 margin_right = 155.0
-margin_bottom = 156.0
+margin_bottom = 111.0
 step = 5.0
 script = ExtResource( 2 )
 __meta__ = {
@@ -549,7 +585,7 @@ PROPERTY = "STEERING_DISPLACEMENT"
 
 [node name="Label" type="Label" parent="ControlPanel/Wander/Displacement"]
 margin_top = -20.0
-margin_right = 92.0
+margin_right = 100.0
 margin_bottom = -6.0
 text = "Displacement"
 __meta__ = {
@@ -569,9 +605,9 @@ __meta__ = {
 
 [node name="SkippedFrames" type="HSlider" parent="ControlPanel/Wander"]
 margin_left = 165.0
-margin_top = 140.0
+margin_top = 95.0
 margin_right = 310.0
-margin_bottom = 156.0
+margin_bottom = 111.0
 max_value = 60.0
 script = ExtResource( 2 )
 __meta__ = {
@@ -582,9 +618,9 @@ PROPERTY = "SKIPPED_FRAMES"
 
 [node name="Label" type="Label" parent="ControlPanel/Wander/SkippedFrames"]
 margin_top = -20.0
-margin_right = 93.0
+margin_right = 100.0
 margin_bottom = -6.0
-text = "Skipped Frames"
+text = "Frames"
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -600,13 +636,111 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Debug" type="Label" parent="."]
-margin_left = 672.0
-margin_top = 620.0
-margin_right = 712.0
-margin_bottom = 634.0
-grow_horizontal = 2
-grow_vertical = 0
+[node name="Avoid" type="Control" parent="ControlPanel"]
+margin_top = 475.0
+margin_right = 40.0
+margin_bottom = 515.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="Title" type="Label" parent="ControlPanel/Avoid"]
+margin_left = 10.0
+margin_right = 110.0
+margin_bottom = 14.0
+custom_colors/font_color = Color( 0.498039, 0.498039, 0.498039, 1 )
+text = "AVOID"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HSeparator" type="HSeparator" parent="ControlPanel/Avoid"]
+margin_left = 10.0
+margin_top = 15.0
+margin_right = 310.0
+margin_bottom = 19.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LupDistance" type="HSlider" parent="ControlPanel/Avoid"]
+margin_left = 10.0
+margin_top = 50.0
+margin_right = 155.0
+margin_bottom = 66.0
+max_value = 1000.0
+step = 10.0
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+AUTOMATON = NodePath("../../../Automaton")
+PROPERTY = "LOOKUP_DISTANCE"
+
+[node name="Label" type="Label" parent="ControlPanel/Avoid/LupDistance"]
+margin_left = 0.627243
+margin_top = -20.0
+margin_right = 100.627
+margin_bottom = -6.0
+text = "Lookup"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Value" type="Label" parent="ControlPanel/Avoid/LupDistance"]
+margin_left = 105.0
+margin_top = -20.0
+margin_right = 145.0
+margin_bottom = -6.0
+grow_horizontal = 0
+align = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="AvoidForce" type="HSlider" parent="ControlPanel/Avoid"]
+margin_left = 165.0
+margin_top = 50.0
+margin_right = 310.0
+margin_bottom = 66.0
+max_value = 1000.0
+step = 10.0
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+AUTOMATON = NodePath("../../../Automaton")
+PROPERTY = "AVOIDANCE_FORCE"
+
+[node name="Label" type="Label" parent="ControlPanel/Avoid/AvoidForce"]
+margin_top = -20.0
+margin_right = 100.0
+margin_bottom = -6.0
+text = "Force"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Value" type="Label" parent="ControlPanel/Avoid/AvoidForce"]
+margin_left = 105.0
+margin_top = -20.0
+margin_right = 145.0
+margin_bottom = -6.0
+grow_horizontal = 0
+align = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Debug" type="Label" parent="."]
+margin_left = 700.0
+margin_top = 610.0
+margin_right = 900.0
+margin_bottom = 624.0
+grow_horizontal = 2
+grow_vertical = 0
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="value_changed" from="ControlPanel/Avoid/LupDistance" to="Automaton" method="_on_AvoidDistance_value_changed"]

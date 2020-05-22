@@ -70,6 +70,14 @@ player_down={
  ]
 }
 
+[layer_names]
+
+2d_physics/layer_1="Player"
+2d_physics/layer_2="Foes"
+2d_physics/layer_3="Obstacles"
+2d_physics/layer_4="Limits"
+2d_physics/layer_5="Sensors"
+
 [rendering]
 
 environment/default_environment="res://Scene/default_env.tres"

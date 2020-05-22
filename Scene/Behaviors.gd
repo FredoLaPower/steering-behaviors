@@ -12,8 +12,10 @@ enum behaviors {seek, flee, wander} # seek = 0 ... wander = 2
 # EXPORT
 export(float, 0, 1, 0.1) var ACCELERATION
 export(int, 0, 1000, 10) var MAX_SPEED
-export(int, 0, 1000, 10) var MAX_FORCE
-export(int, 0, 1000, 10) var DECELERATION_DISTANCE
+export(int, 0, 1000, 10) var STEERING_FORCE
+export(int, 0, 1000, 10) var AVOIDANCE_FORCE
+export(int, 0, 1000, 10) var LOOKUP_DISTANCE
+export(int, 0, 1000, 10) var BREAKING_DISTANCE
 export(int, 0, 1000, 10) var SAFETY_DISTANCE
 export(int, 0, 1000, 10) var WHEEL_DISTANCE
 export(int, 0, 1000, 10) var WHEEL_RADIUS
@@ -25,9 +27,11 @@ export(NodePath) var TARGET
 # PUBLIC
 var current_velocity: Vector2 = Vector2.ZERO # Automaton current velocity
 var desired_velocity: Vector2 = Vector2.ZERO # Automaton desired velocity
-var steering_velocity: Vector2 = Vector2.ZERO # Aotumaton steering velovity
-var steering_force: Vector2 = Vector2.ZERO # Force applied to move towards the target
-var steering_point: Vector2 = Vector2.ZERO # Point on the steering wheel if automaton is wandering
+var steering_velocity: Vector2 = Vector2.ZERO # Automaton steering velovity
+var steering_force: Vector2 = Vector2.ZERO # Force applied to steer the automaton
+var avoidance_force: Vector2 = Vector2.ZERO # Force applied to move away from the nearest obstacle
+var lookup_vector: Vector2 = Vector2.ZERO # Force applied to move away from the nearest obstacle
+var steering_point: Vector2 = Vector2.ZERO # Steering wheel position while wandering
 
 # PRIVATE
 var _last_angle: float = 0.0 # In Radiant
@@ -35,6 +39,8 @@ var frames_skipped: int = 0
 
 func _ready():
 	randomize()
+	
+	$RayCast.cast_to.x = LOOKUP_DISTANCE
 
 
 # warning-ignore:unused_argument
@@ -43,7 +49,27 @@ func _physics_process(delta: float) -> void:
 	var direction: Vector2 = Vector2.ZERO
 	var distance: float = 0.0
 	var speed: float = MAX_SPEED
+	var heading_direction: float = Vector2.RIGHT.angle_to(current_velocity)
 	
+	# Look for obstacles
+	
+	
+	if BEHAVIOR == 0:
+		$RayCast.look_at(get_node(TARGET).position)
+		lookup_vector = $RayCast.cast_to.rotated($RayCast.rotation)
+	else:
+		lookup_vector = current_velocity.normalized() * LOOKUP_DISTANCE
+		$RayCast.rotation = heading_direction
+	
+	$Sprite.rotation = heading_direction
+	$Collider.rotation = heading_direction
+	
+	if $RayCast.is_colliding():
+		distance = position.distance_to($RayCast.get_collision_point())
+		avoidance_force = $RayCast.get_collision_normal() * (AVOIDANCE_FORCE - distance) # Closer we are stronger is the force
+	else:
+		avoidance_force = Vector2.ZERO
+		
 	# Calculate desired velocity
 	if BEHAVIOR == 2:
 		if  frames_skipped >= SKIPPED_FRAMES:
@@ -69,8 +95,8 @@ func _physics_process(delta: float) -> void:
 	
 	match BEHAVIOR:
 		0: # Seek
-			if distance < DECELERATION_DISTANCE:
-				speed *= distance / DECELERATION_DISTANCE
+			if distance < BREAKING_DISTANCE:
+				speed *= distance / BREAKING_DISTANCE
 		1: # Flee
 			if distance < SAFETY_DISTANCE:
 				speed *= (distance - SAFETY_DISTANCE) / SAFETY_DISTANCE
@@ -78,9 +104,14 @@ func _physics_process(delta: float) -> void:
 				speed = 0
 	
 	desired_velocity = direction * speed
-
+	
 	# Calculate steering force
-	steering_force = (desired_velocity - current_velocity).clamped(MAX_FORCE) # We want to limit the steering force
+	steering_force = (desired_velocity - current_velocity + avoidance_force).clamped(STEERING_FORCE) # We want to limit the steering force
 	steering_velocity = current_velocity + steering_force
+	
 	current_velocity = lerp(current_velocity, steering_velocity, ACCELERATION) # Smmooth movement acceleration
 	current_velocity = move_and_slide(current_velocity, Vector2.UP)
+
+
+func _on_AvoidDistance_value_changed(value):
+	$RayCast.cast_to.x = value

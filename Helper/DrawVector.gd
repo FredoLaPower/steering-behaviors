@@ -4,8 +4,8 @@ extends Node2D
 
 # EXPORT
 export(NodePath) var OWNER
-export(String) var VECTOR # VECTOR holding the vector
-export(String) var ORIGIN # VECTOR holding the vector point of origin. If left blank, it means Vector2.ZERO
+export(String) var VECTOR # Vector to draw
+export(String) var ORIGIN # Point of origin if any
 export(Color) var COLOR # Vector color
 export(int) var WIDTH # line width
 export(bool) var DRAW_TRIANGLE
@@ -18,7 +18,7 @@ func _draw():
 	var origin: Vector2 = Vector2.ZERO
 	
 	if ORIGIN != "":
-		origin = get_node(OWNER).get(ORIGIN)
+		origin += get_node(OWNER).get(ORIGIN)
 	
 	draw_line(origin, origin + get_node(OWNER).get(VECTOR), COLOR, WIDTH, true) # Draw the line
 	
